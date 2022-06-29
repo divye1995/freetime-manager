@@ -1,0 +1,9 @@
+[
+  { "suggestion": "Watch Netflix", "type": "consume/watch/netflix" },
+  {
+    "suggestion": "Create a Free time manager application",
+    "type": "create/code"
+  },
+  { "suggestion": "Make A new Song", "type": "create/music" },
+  { "suggestion": "Watch Random youtube", "type": "consume/watch" }
+]

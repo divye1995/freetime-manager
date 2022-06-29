@@ -1,0 +1,10 @@
+[
+  {
+    "label": "create",
+    "subtypes": [{ "label": "code" }, { "label": "music" }]
+  },
+  {
+    "label": "consume",
+    "subtypes": [{ "label": "watch", "subtypes": [{ "label": "netflix" }] }]
+  }
+]
