@@ -1,0 +1,16 @@
+.container {
+  position: relative;
+}
+.close-btn {
+  position: absolute;
+  height: 10px;
+}
+
+.top-right-corner {
+  right: 10px;
+}
+.modal-content {
+  position: absolute;
+  top: 10px;
+  contain: content;
+}

@@ -47,6 +47,6 @@ body {
   grid-template-columns: 50% 50%;
 }
 
-.pointer-cursor {
+.cursor-pointer {
   cursor: pointer;
 }

@@ -1,10 +1,19 @@
 [
   {
     "label": "create",
-    "subtypes": [{ "label": "code" }, { "label": "music" }]
+    "subtypes": [{ "label": "code" }]
   },
+  { "label": "practice" },
+  { "label": "learn" },
   {
     "label": "consume",
-    "subtypes": [{ "label": "watch", "subtypes": [{ "label": "netflix" }] }]
+    "subtypes": [
+      { "label": "read" },
+      {
+        "label": "listen",
+        "subtypes": [{ "label": "podcast" }, { "label": "music" }]
+      },
+      { "label": "watch" }
+    ]
   }
 ]

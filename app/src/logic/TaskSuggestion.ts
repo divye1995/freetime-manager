@@ -1,15 +1,27 @@
 import {
+  add,
+  both,
   compose,
   curry,
+  either,
+  filter,
   flatten,
+  gt,
+  has,
+  identity,
   ifElse,
   indexOf,
   isEmpty,
   isNil,
+  lt,
+  lte,
   map,
+  not,
   prop,
   propOr,
   sort,
+  subtract,
+  __,
 } from "ramda";
 
 export interface TaskType {
@@ -19,10 +31,11 @@ export interface TaskType {
 
 export const TaskTypeSeperator = "/";
 
-export interface TaskSuggestion {
+export type TaskSuggestion = {
   suggestion: string;
   type: string;
-}
+  lastPicked?: number; // some UTC timestamp .
+};
 
 const isEmptyOrNil = (taskType: TaskType) =>
   isEmpty(taskType.subtypes) || isNil(taskType.subtypes);
@@ -45,17 +58,26 @@ const getTypes = ifElse(isEmptyOrNil, prop("label"), applyPrefixToPostfix);
 
 export const flattenTypes = compose(flatten, map(getTypes));
 
-const taskComparator = (
-  flattendOrderList: string[],
-  taskA: TaskSuggestion,
-  taskB: TaskSuggestion
-) =>
-  indexOf(taskA.type)(flattendOrderList) -
-  indexOf(taskB.type)(flattendOrderList);
+const taskComparator =
+  <T extends TaskSuggestion>(flattendOrderList: string[]) =>
+  (taskA: T, taskB: T) =>
+    indexOf(taskA.type)(flattendOrderList) -
+    indexOf(taskB.type)(flattendOrderList);
 
-const curriedTaskComparator = curry(taskComparator);
-
-export const sortTask = (
-  items: TaskSuggestion[],
+export const sortTask = <T extends TaskSuggestion>(
+  items: T[],
   flattendOrderList: string[]
-) => sort<TaskSuggestion>(curriedTaskComparator(flattendOrderList))(items);
+) => sort<T>(taskComparator(flattendOrderList))(items);
+
+export const getLastPicked: (obj: any) => number = prop("lastPicked");
+export const lastPickedBefore = (time: number): ((obj: any) => boolean) =>
+  compose(gt(time), getLastPicked);
+export const hasLastPicked = has("lastPicked");
+export const predicateByLastPickedBefore = (
+  time: number
+): ((obj: any) => boolean) =>
+  either(compose(not, hasLastPicked), lastPickedBefore(time));
+
+export const filterByLastPickedBefore = (
+  time: number
+): ((list: any[]) => any[]) => filter(predicateByLastPickedBefore(time));

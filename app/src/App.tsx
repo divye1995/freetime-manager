@@ -1,9 +1,17 @@
-import { useEffect } from "react";
+import { Link, Outlet } from "react-router-dom";
 import "./App.css";
-import BasicView from "./partials/Basic";
+import ViewV1 from "./partials/View";
+import { StoreProvider } from "./providers/context";
 
 function App() {
-  return <BasicView />;
+  return (
+    <StoreProvider>
+      <nav style={{ borderBottom: "solid 1px", paddingBottom: "1rem" }}>
+        <Link to="/">Home</Link> |<Link to="/settings">Settings</Link>
+      </nav>
+      <Outlet />
+    </StoreProvider>
+  );
 }
 
 export default App;
