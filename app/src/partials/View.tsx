@@ -1,57 +1,62 @@
-import { BasicTemplate } from "../components/BasicTemplate";
-import { SuggestionV1 } from "../components/Suggestion";
-import { useHeirarchy, useSuggestion } from "../providers/context";
+import { useState } from "react";
+import { SuggestionV2 } from "../components/Suggestion";
+import { SuggestionAction } from "../components/SuggestionAction";
+import { useSuggestionDocumentIterator } from "../providers/hooks";
+import { TaskSuggestionDocument } from "../utils/types";
+import TaskSuggestionCreator from "./CreateTaskSuggestion";
 import "./View.css";
 
-function ViewV1() {
-  const { currentSuggestion, filteredSuggestions, nextSuggestion, setPick } =
-    useSuggestion();
-  const [hierarchy, setHeirarchy] = useHeirarchy();
+export function ViewV2() {
+  const [isCreateOpen, setCreateOpen] = useState(false);
+  const [
+    currentSuggestionDoc,
+    setCurrentSuggestionDoc,
+    nextSuggestion,
+    setLastSeen,
+    deleteSuggestion,
+  ] = useSuggestionDocumentIterator();
 
-  const leftClickHandler = () => nextSuggestion();
-  const rightClickHandler = () => onPick();
-  const onPick = () => {
-    if (currentSuggestion)
-      setPick(currentSuggestion).then((result) => {
-        if (result.kind === "Error") {
-          // respond with error
-        } else {
-          // dont respond at all
-        }
-      });
+  const onNextSuggestion = () => nextSuggestion();
+  const onDelete = (suggestion: TaskSuggestionDocument | null) => {
+    if (!suggestion) return;
+    deleteSuggestion(suggestion).then((result) => {
+      if (result.kind === "Error") {
+        //TODO: Add error handling
+        return;
+      }
+      nextSuggestion(true);
+    });
   };
   return (
-    <BasicTemplate title="Basic V1">
-      <div className="basic">
-        <div
-          className="left cursor-pointer"
-          onClick={(e) => leftClickHandler()}
-        >
-          {filteredSuggestions.length > 1 ? "Next" : <></>}
-        </div>
-        <div
-          className="right cursor-pointer"
-          onClick={(e) => rightClickHandler()}
-        >
-          {"Pick"}
-        </div>
-        <div className="main">
-          {currentSuggestion ? (
-            <SuggestionV1 task={currentSuggestion} />
-          ) : filteredSuggestions.length ? (
-            <span>
-              {" "}
-              We have some suggestions for you. Click{" "}
-              <button onClick={() => nextSuggestion()}>Next</button> to find
-              out!"{" "}
-            </span>
-          ) : (
-            "No Suggestions. You should do what you want !"
-          )}
+    <div>
+      <TaskSuggestionCreator
+        isOpen={isCreateOpen}
+        onDone={({ cancel, created, suggestion }) => {
+          setCreateOpen(false);
+          if (suggestion) setCurrentSuggestionDoc(suggestion);
+        }}
+      />
+
+      <div className="w-full flex flex-col justify-center overflow-hidden py-6 sm:py-12">
+        <div className="w-full">
+          <div className="my-4">
+            <SuggestionAction
+              suggestion={currentSuggestionDoc}
+              onAdd={() => {
+                setCreateOpen(true);
+              }}
+              onAccept={() => {}}
+              onNext={() => onNextSuggestion()}
+            ></SuggestionAction>
+          </div>
+          <SuggestionV2
+            onDelete={() => onDelete(currentSuggestionDoc)}
+            task={currentSuggestionDoc}
+          />
         </div>
       </div>
-    </BasicTemplate>
+    </div>
   );
 }
 
-export default ViewV1;
+export default ViewV2;

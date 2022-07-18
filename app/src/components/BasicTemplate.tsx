@@ -1,8 +1,10 @@
 export function BasicTemplate({ title = "", ...props }) {
   return (
-    <div>
-      <div> {title} </div>
-      <div> {props.children} </div>
-    </div>
+    <>
+      <div>
+        <p className="text-gray-500 text-lg">{title}</p>{" "}
+      </div>
+      <> {props.children} </>
+    </>
   );
 }

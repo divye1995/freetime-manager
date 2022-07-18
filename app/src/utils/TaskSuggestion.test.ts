@@ -1,10 +1,5 @@
-import { json } from "stream/consumers";
-import {
-  flattenTaskTypes,
-  sortTask,
-  TaskSuggestion,
-  TaskType,
-} from "./TaskSuggestion";
+import { TaskSuggestion } from "./TaskSuggestion";
+import { TaskType } from "./types";
 
 const tasks: TaskSuggestion[] = [
   {

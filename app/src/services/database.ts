@@ -34,8 +34,8 @@ export class LocalDocumentDatabase<T extends DocumentPrototype> {
   constructor(name = "localdb") {
     this.db = new PouchDB(name);
   }
-
-  async put(doc: { _id?: DocumentId }): Promise<DBResultOption<T>> {
+  // TODO : fix with proper types
+  async put(doc: any): Promise<DBResultOption<T>> {
     try {
       var { id, rev } = await (doc._id ? this.db.put(doc) : this.db.post(doc));
       return {

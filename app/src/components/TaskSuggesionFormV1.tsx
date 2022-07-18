@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TaskSuggestion } from "../logic/TaskSuggestion";
+import { TaskSuggestion } from "../utils/TaskSuggestion";
 
 function TaskSuggesionFormV1<T extends TaskSuggestion>({
   taskSuggestion,

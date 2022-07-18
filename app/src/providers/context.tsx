@@ -1,209 +1,154 @@
 // create a context to provide custom hooks for Pouch DB
 
-import { findIndex, propEq } from "ramda";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  DBChangeOption,
-  DBResultOption,
-  DocumentId,
-  DocumentPrototype,
-  LocalDocumentDatabase,
-} from "../logic/database";
-import {
-  filterByLastPickedBefore,
-  flattenTaskTypes,
-  sortTask,
-  TaskSuggestion,
-  TaskType,
-} from "../logic/TaskSuggestion";
-import { circlularAdd } from "../utils/utils";
+import { createContext, useMemo } from "react";
+import { LocalDocumentDatabase } from "../services/database";
+import { TaskSuggestionDocument } from "../utils/types";
 
-const RETRY_TIME_MS = 60 * 10 * 1000; // time to retry a card if it has been picked 10 mins
-
-export type TaskSuggestionDocument = TaskSuggestion & DocumentPrototype;
-
-export type IncompleteTaskSuggestionDocument =
-  | TaskSuggestionDocument
-  | (TaskSuggestion & { _id?: DocumentId });
 const initialState: TaskContextType = {
-  suggestions: [],
-  setSuggestions: () => {},
-  hierarchy: [],
-  setHeirarchy: () => {},
-  currentSuggestion: null,
-  setCurrentSuggestion: () => {},
+  suggestionsDb: new LocalDocumentDatabase<TaskSuggestionDocument>("tasks"),
 };
 
 export interface TaskContextType {
-  suggestions: TaskSuggestionDocument[];
-  setSuggestions: (task: TaskSuggestionDocument[]) => void;
-  hierarchy: TaskType[];
-  setHeirarchy: (hierarchy: TaskType[]) => void;
-  currentSuggestion: TaskSuggestionDocument | null;
-  setCurrentSuggestion: (suggestion: TaskSuggestionDocument | null) => void;
+  suggestionsDb: LocalDocumentDatabase<TaskSuggestionDocument>;
+  // suggestions: TaskSuggestionDocument[];
+  // setSuggestions: (task: TaskSuggestionDocument[]) => void;
+  // hierarchy: TaskType[];
+  // setHeirarchy: (hierarchy: TaskType[]) => void;
+  // currentSuggestion: TaskSuggestionDocument | null;
+  // setCurrentSuggestion: (suggestion: TaskSuggestionDocument | null) => void;
 }
 export const TasksContext = createContext<TaskContextType>(initialState);
-const localdb = new LocalDocumentDatabase<TaskSuggestionDocument>("tasks");
 
-export function useSuggestions(): [
-  TaskSuggestionDocument[],
-  (task: TaskSuggestionDocument[]) => void
-] {
-  const { suggestions, setSuggestions } =
-    useContext<TaskContextType>(TasksContext);
+// const settingsDb = new LocalDocumentDatabase<SettingsDocument>("settings");
 
-  return [suggestions, setSuggestions];
-}
-const findCurrentIndex = (currentSuggestion: TaskSuggestionDocument) =>
-  findIndex(propEq("_id", currentSuggestion?._id));
-export function useSuggestion(): {
-  currentSuggestion: TaskSuggestionDocument | null;
-  filteredSuggestions: TaskSuggestionDocument[];
-  setCurrentSuggestion: (suggestion: TaskSuggestionDocument | null) => void;
-  nextSuggestion: () => void;
-  updateSuggestion: (
-    suggestion: IncompleteTaskSuggestionDocument
-  ) => Promise<DBResultOption<TaskSuggestionDocument>>;
-  deleteSuggestion: (
-    suggestion: TaskSuggestionDocument
-  ) => Promise<DBResultOption<TaskSuggestionDocument>>;
-  setPick: (
-    suggestion: TaskSuggestionDocument
-  ) => Promise<DBResultOption<TaskSuggestionDocument>>;
-} {
-  const { suggestions, currentSuggestion, setCurrentSuggestion } =
-    useContext<TaskContextType>(TasksContext);
-  const filteredSuggestions = filterByLastPickedBefore(
-    Date.now() - RETRY_TIME_MS
-  )(suggestions);
+// export function useSuggestions(): [
+//   TaskSuggestionDocument[],
+//   (task: TaskSuggestionDocument[]) => void
+// ] {
+//   const { suggestions, setSuggestions } =
+//     useContext<TaskContextType>(TasksContext);
 
-  const nextSuggestion = () => {
-    try {
-      if (filteredSuggestions.length === 0) {
-        setCurrentSuggestion(null);
-        return;
-      }
-      if (currentSuggestion === null) {
-        setCurrentSuggestion(filteredSuggestions[0]);
-      } else {
-        var currentIdx =
-          findCurrentIndex(currentSuggestion)(filteredSuggestions);
-        var nextIdx = circlularAdd(filteredSuggestions.length)(currentIdx);
-        setCurrentSuggestion(filteredSuggestions[nextIdx]);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+//   return [suggestions, setSuggestions];
+// }
 
-  const updateSuggestion = (
-    suggestion: IncompleteTaskSuggestionDocument
-  ): Promise<DBResultOption<TaskSuggestionDocument>> => {
-    return localdb.put(suggestion);
-  };
+// export function useSuggestion(): {
+//   currentSuggestion: TaskSuggestionDocument | null;
+//   filteredSuggestions: TaskSuggestionDocument[];
+//   setCurrentSuggestion: (suggestion: TaskSuggestionDocument | null) => void;
+//   nextSuggestion: () => void;
+//   updateSuggestion: (
+//     suggestion: IncompleteTaskSuggestionDocument
+//   ) => Promise<DBResultOption<TaskSuggestionDocument>>;
+//   deleteSuggestion: (
+//     suggestion: TaskSuggestionDocument
+//   ) => Promise<DBResultOption<TaskSuggestionDocument>>;
+//   setPick: (
+//     suggestion: TaskSuggestionDocument
+//   ) => Promise<DBResultOption<TaskSuggestionDocument>>;
+// } {
+//   const { suggestions, currentSuggestion, setCurrentSuggestion } =
+//     useContext<TaskContextType>(TasksContext);
+//   const filteredSuggestions = filterByLastPickedBefore(
+//     Date.now() - RETRY_TIME_MS
+//   )(suggestions);
 
-  const setPick = (
-    suggestion: TaskSuggestionDocument
-  ): Promise<DBResultOption<TaskSuggestionDocument>> => {
-    suggestion.lastPicked = Date.now();
-    return localdb.put(suggestion);
-  };
+//   const nextSuggestion = () => {
+//     try {
+//       if (filteredSuggestions.length === 0) {
+//         setCurrentSuggestion(null);
+//         return;
+//       }
+//       if (currentSuggestion === null) {
+//         setCurrentSuggestion(filteredSuggestions[0]);
+//       } else {
+//         var currentIdx =
+//           findCurrentIndex(currentSuggestion)(filteredSuggestions);
+//         var nextIdx = circlularAdd(filteredSuggestions.length)(currentIdx);
+//         setCurrentSuggestion(filteredSuggestions[nextIdx]);
+//       }
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   };
 
-  const deleteSuggestion = (suggestion: TaskSuggestionDocument) => {
-    return localdb.remove(suggestion);
-  };
-  return {
-    currentSuggestion,
-    filteredSuggestions,
-    setCurrentSuggestion,
-    nextSuggestion,
-    updateSuggestion,
-    deleteSuggestion,
-    setPick,
-  };
-}
+//   const updateSuggestion = (
+//     suggestion: IncompleteTaskSuggestionDocument
+//   ): Promise<DBResultOption<TaskSuggestionDocument>> => {
+//     return suggestionsDb.put(suggestion);
+//   };
 
-export function useHeirarchy(): [TaskType[], (hierarchy: TaskType[]) => void] {
-  const { hierarchy, setHeirarchy } = useContext<TaskContextType>(TasksContext);
-  return [hierarchy, setHeirarchy];
-}
+//   const setPick = (
+//     suggestion: TaskSuggestionDocument
+//   ): Promise<DBResultOption<TaskSuggestionDocument>> => {
+//     suggestion.lastPicked = Date.now();
+//     return suggestionsDb.put(suggestion);
+//   };
 
-export function StoreProvider({ children }: React.PropsWithChildren<{}>) {
-  const [suggestions, setSuggestions] = useState<TaskSuggestionDocument[]>([]);
-  const [hierarchy, setHeirarchy] = useState<TaskType[]>([]);
-  const [currentSuggestion, setCurrentSuggestion] =
-    useState<TaskSuggestionDocument | null>(null);
-  const hierarchySet = useRef(false);
+//   const deleteSuggestion = (suggestion: TaskSuggestionDocument) => {
+//     return suggestionsDb.remove(suggestion);
+//   };
+//   return {
+//     currentSuggestion,
+//     filteredSuggestions,
+//     setCurrentSuggestion,
+//     nextSuggestion,
+//     updateSuggestion,
+//     deleteSuggestion,
+//     setPick,
+//   };
+// }
 
-  useEffect(() => {
-    fetch("/assets/tasktypehierarchy.json")
-      .then((res) => res.json())
-      .then((_hierarchy) => {
-        setHeirarchy(_hierarchy);
-        hierarchySet.current = true;
-      });
-    return () => {
-      hierarchySet.current = false;
-    };
-  }, []);
+// export function useHeirarchy(): [TaskType[], (hierarchy: TaskType[]) => void] {
+//   const { hierarchy, setHeirarchy } = useContext<TaskContextType>(TasksContext);
+//   return [hierarchy, setHeirarchy];
+// }
 
-  useEffect(() => {
-    if (!hierarchySet.current) return;
-    var cancelDbListener = () => {};
-    const onChange = (change: DBChangeOption<TaskSuggestionDocument>) => {
-      if (change.kind === "Error") {
-        console.log("Update Skipped", change.value);
-        return;
-      }
-      // if update is current suggestion , set current Suggestion
-      if (change.value.id === currentSuggestion?._id) {
-        setCurrentSuggestion(change.value.doc);
-      }
-      getAndUpdateSuggestionsList();
-    };
-    cancelDbListener = localdb.watch(onChange);
+export function AppContextProvider({ children }: React.PropsWithChildren<{}>) {
+  // const [suggestions, setSuggestions] = useState<TaskSuggestionDocument[]>([]);
+  // // const [hierarchy, setHeirarchy] = useState<TaskType[]>(DefaultTaskTypes);
+  // const [currentSuggestion, setCurrentSuggestion] =
+  //   useState<TaskSuggestionDocument | null>(null);
 
-    const getAndUpdateSuggestionsList = async () => {
-      var resp = await localdb.getAll();
-      if (resp.kind === "Error") {
-        // TODO : somehow represent that an error has occured.
-      } else {
-        const sorted_suggestions = sortTask(
-          resp.value,
-          flattenTaskTypes(hierarchy)
-        );
-        setSuggestions(sorted_suggestions);
+  // // effect to read the suggestions list from the db.
 
-        if (currentSuggestion !== null) {
-          if (findCurrentIndex(currentSuggestion)(sorted_suggestions) === -1) {
-            setCurrentSuggestion(null); // if the suggestion was deleted then reset to the initial suggestion
-          }
-        }
-      }
-    };
-    getAndUpdateSuggestionsList();
-    // )();
+  // // effect to listen to db changes
+  // useEffect(() => {
+  //   var cancelDbListener = () => {};
+  //   const onChange = (change: DBChangeOption<TaskSuggestionDocument>) => {
+  //     if (change.kind === "Error") {
+  //       console.log("Update Skipped", change.value);
+  //       return;
+  //     }
+  //     suggestionsDb.getAll().then((resp) => {
+  //       if (resp.kind === "Error") {
+  //         // TODO : somehow represent that an error has occured.
+  //       } else {
+  //         if (change.value.id === currentSuggestion?._id) {
+  //           if (change.value.deleted) {
+  //             setCurrentSuggestion(null); // if update is current suggestion , and the update says it is deleted
+  //           } else {
+  //             setCurrentSuggestion(change.value.doc);
+  //           }
+  //         }
+  //         setSuggestions(resp.value);
+  //       }
+  //     }, []);
+  //     cancelDbListener = suggestionsDb.watch(onChange);
+  //     return cancelDbListener;
+  //   };
+  // }, []);
 
-    return cancelDbListener;
-  }, [hierarchy]);
+  // // effect to check if their is any type missing in the heirarchy
+
+  // const sortedSuggestions = useMemo(() => {
+  //   return sortTask(suggestions, flattenTaskTypes(hierarchy));
+  // }, [suggestions, hierarchy]);
 
   const value = useMemo(
     () => ({
-      suggestions,
-      setSuggestions,
-      hierarchy,
-      setHeirarchy,
-      currentSuggestion,
-      setCurrentSuggestion,
+      suggestionsDb: new LocalDocumentDatabase<TaskSuggestionDocument>("tasks"),
     }),
-    [suggestions, hierarchy, currentSuggestion]
+    []
   );
 
   return (

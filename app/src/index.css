@@ -50,3 +50,36 @@ body {
 .cursor-pointer {
   cursor: pointer;
 }
+
+/* tailwind directive */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .fill-primary {
+    @apply fill-black;
+  }
+  .stroke-primary {
+    @apply stroke-black;
+  }
+  .stroke-secondary {
+    @apply stroke-violet-50;
+  }
+  .stroke-negative {
+    @apply stroke-red-500;
+  }
+  .stroke-positive {
+    @apply stroke-green-500;
+  }
+
+  .background-light {
+    @apply bg-violet-50;
+  }
+  .backgroud-light-transparent {
+    @apply bg-violet-50 opacity-30;
+  }
+  .backgroud-dark {
+    @apply bg-violet-900;
+  }
+}

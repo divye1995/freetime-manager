@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import ModalHolder from "../components/ModalHolder/ModalHolder";
 import TaskSuggesionFormV1 from "../components/TaskSuggesionFormV1";
-import { TaskSuggestion } from "../logic/TaskSuggestion";
-import { TaskSuggestionDocument, useSuggestion } from "../providers/context";
+import { TaskSuggestionDocument } from "../utils/types";
 
 const customStyles = {
   overlay: {
@@ -29,7 +28,7 @@ function TaskSuggestionEditor({
   suggestion: TaskSuggestionDocument | null;
   onDone: () => void;
 }) {
-  const { updateSuggestion } = useSuggestion();
+  // const { updateSuggestion } = useSuggestion();
   useEffect(() => {
     if (suggestion) {
       setIsOpen(true);
@@ -47,15 +46,15 @@ function TaskSuggestionEditor({
   }
   function onSubmit(task: TaskSuggestionDocument) {
     // start loader
-    updateSuggestion(task).then((result) => {
-      // stop loader
-      if (result.kind === "Error") {
-        // display error
-      } else {
-        onCloseModal();
-        onDone();
-      }
-    });
+    // updateSuggestion(task).then((result) => {
+    //   // stop loader
+    //   if (result.kind === "Error") {
+    //     // display error
+    //   } else {
+    //     onCloseModal();
+    //     onDone();
+    //   }
+    // });
   }
   const [modalIsOpen, setIsOpen] = useState(false);
 

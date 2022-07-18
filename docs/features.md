@@ -7,8 +7,9 @@
 ## In Pipeline
 
 - [ ] reset a tasks lastPick
-
+- [ ] Add responsiveness
 - [ ] Export and Import of data ( tasks and hierarchy )
+- [ ] Add pick animation or change view.
 
 - [ ] Add in Bulk Tasks in settings
 - [ ] Suggestions for Category input
