@@ -1,13 +1,12 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import ViewV1, { ViewV2 } from "./partials/View";
+import App from "./App";
+import "./index.css";
 import SettingsV1 from "./partials/Settings";
-import TaskSuggestionList from "./partials/TaskSuggestionList";
+import TaskSuggestionList from "./partials/SuggestionList/TaskSuggestionList";
 import TaskHierarchyEditor from "./partials/TaskHierarchyEditor";
+import { ViewV2 } from "./partials/View";
+import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

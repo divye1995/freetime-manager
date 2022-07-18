@@ -9,6 +9,7 @@ import { hierarchyPriorityList } from "../utils/constant";
 import { MaxHeap } from "../utils/heap";
 import {
   filterByLastSeenBefore,
+  TaskSuggestion,
   TaskSuggestionComparator,
 } from "../utils/TaskSuggestion";
 import { TaskSuggestionDocument } from "../utils/types";
@@ -122,6 +123,19 @@ export function useSuggestionDocumentIterator(): [
   ];
 }
 
-export function useSuggestionDocument(id: DocumentId) {
-  // TODO : Write a hook that reads a suggestion with given id and provide methods to set lastSeen , lastPicked values , along with set in local db
+export function useSuggestionList(): [TaskSuggestionDocument[]] {
+  const { suggestionsDb } = useContext<TaskContextType>(TasksContext);
+  const [suggestions, setSuggestions] = useState<TaskSuggestionDocument[]>([]);
+  useEffect(() => {
+    // effect to load the list of all cards
+    suggestionsDb?.getAll().then((res) => {
+      if (res.kind === "Error") {
+        // TODO : Some error handling
+        return;
+      }
+      setSuggestions(res.value);
+    });
+  }, [suggestionsDb]);
+
+  return [suggestions];
 }

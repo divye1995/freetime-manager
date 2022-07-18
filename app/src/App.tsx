@@ -25,7 +25,7 @@ function App() {
             <SettingsSolidIcon />
           </NavLink>
         </nav>
-        <div className="w-full md:grow overflow-hidden">
+        <div className="w-full flex flex-col md:pr-4 grow overflow-hidden">
           <Outlet />
         </div>
       </div>

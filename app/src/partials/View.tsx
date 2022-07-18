@@ -28,7 +28,7 @@ export function ViewV2() {
     });
   };
   return (
-    <div>
+    <div className="h-full w-full">
       <TaskSuggestionCreator
         isOpen={isCreateOpen}
         onDone={({ cancel, created, suggestion }) => {
